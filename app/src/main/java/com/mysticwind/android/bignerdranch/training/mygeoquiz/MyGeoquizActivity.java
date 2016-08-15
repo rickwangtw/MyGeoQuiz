@@ -7,6 +7,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mysticwind.android.bignerdranch.training.mygeoquiz.manager.QuizManager;
+import com.mysticwind.android.bignerdranch.training.mygeoquiz.manager.QuizManagerImpl;
 import com.mysticwind.android.bignerdranch.training.mygeoquiz.model.Question;
 
 public class MyGeoquizActivity extends AppCompatActivity {
@@ -17,6 +19,7 @@ public class MyGeoquizActivity extends AppCompatActivity {
     private Button nextButton;
     private int currentIndex = 0;
 
+    // DI to handle questions and QuizManager
     private Question[] questions = new Question[] {
             new Question(R.string.Oceans, true),
             new Question(R.string.Mideast, false),
@@ -25,13 +28,15 @@ public class MyGeoquizActivity extends AppCompatActivity {
             new Question(R.string.Asia, true),
     };
 
+    private final QuizManager quizManager = new QuizManagerImpl(questions);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_geoquiz);
 
         quizTextView = (TextView) findViewById(R.id.quiz_text_view);
-        quizTextView.setText(questions[0].getTextResourceId());
+        quizTextView.setText(quizManager.startQuiz());
 
         yesButton = (Button) findViewById(R.id.yesButton);
         yesButton.setOnClickListener(new View.OnClickListener() {
@@ -53,14 +58,13 @@ public class MyGeoquizActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                currentIndex = (currentIndex + 1) % questions.length;
-                quizTextView.setText(questions[currentIndex].getTextResourceId());
+                quizTextView.setText(quizManager.nextQuiz());
             }
         });
     }
 
     private void checkAnswerAndShowToast(boolean enteredAnswer) {
-        boolean isAnswerCorrect = questions[currentIndex].validateAnswer(enteredAnswer);
+        boolean isAnswerCorrect = quizManager.answer(enteredAnswer);
         int stringResourceId = isAnswerCorrect ? R.string.answer_correct : R.string.answer_incorrect;
         Toast.makeText(MyGeoquizActivity.this, stringResourceId, Toast.LENGTH_SHORT).show();
     }
