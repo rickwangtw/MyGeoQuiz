@@ -12,10 +12,12 @@ import android.widget.Toast;
 import com.mysticwind.android.bignerdranch.training.mygeoquiz.manager.QuizManager;
 import com.mysticwind.android.bignerdranch.training.mygeoquiz.manager.QuizManagerImpl;
 import com.mysticwind.android.bignerdranch.training.mygeoquiz.model.Question;
+import com.mysticwind.android.bignerdranch.training.mygeoquiz.model.QuizState;
 
 public class MyGeoquizActivity extends AppCompatActivity {
 
     private static final String TAG = MyGeoquizActivity.class.getSimpleName();
+    private static final String PERSISTED_QUIZ_STATE_KEY = "quizState";
 
     private TextView quizTextView;
     private Button yesButton;
@@ -43,7 +45,15 @@ public class MyGeoquizActivity extends AppCompatActivity {
         setContentView(R.layout.activity_my_geoquiz);
 
         quizTextView = (TextView) findViewById(R.id.quiz_text_view);
-        quizTextView.setText(quizManager.startQuiz());
+
+        int quizTextResourceId;
+        if (savedInstanceState == null) {
+            quizTextResourceId = quizManager.startQuiz();
+        } else {
+            QuizState quizState = (QuizState) savedInstanceState.getSerializable(PERSISTED_QUIZ_STATE_KEY);
+            quizTextResourceId = quizManager.continueQuiz(quizState);
+        }
+        quizTextView.setText(quizTextResourceId);
 
         yesButton = (Button) findViewById(R.id.yesButton);
         yesButton.setOnClickListener(new View.OnClickListener() {
@@ -92,6 +102,14 @@ public class MyGeoquizActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         debug("onDestroy()");
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        QuizState quizState = quizManager.getQuizState();
+        outState.putSerializable(PERSISTED_QUIZ_STATE_KEY, quizState);
     }
 
     @Override
