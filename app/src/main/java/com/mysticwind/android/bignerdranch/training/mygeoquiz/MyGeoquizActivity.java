@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,8 +17,8 @@ public class MyGeoquizActivity extends AppCompatActivity {
     private TextView quizTextView;
     private Button yesButton;
     private Button noButton;
-    private Button previousButton;
-    private Button nextButton;
+    private ImageButton previousButton;
+    private ImageButton nextButton;
 
     // DI to handle questions and QuizManager
     private Question[] questions = new Question[] {
@@ -54,7 +55,7 @@ public class MyGeoquizActivity extends AppCompatActivity {
             }
         });
 
-        previousButton = (Button) findViewById(R.id.previous_button_view);
+        previousButton = (ImageButton) findViewById(R.id.previous_button_view);
         previousButton.setEnabled(false);
         previousButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,7 +65,7 @@ public class MyGeoquizActivity extends AppCompatActivity {
             }
         });
 
-        nextButton = (Button) findViewById(R.id.next_button_view);
+        nextButton = (ImageButton) findViewById(R.id.next_button_view);
         nextButton.setEnabled(false);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
