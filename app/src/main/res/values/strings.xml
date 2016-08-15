@@ -6,5 +6,7 @@
     <string name="previous">Previous</string>
     <string name="answer_correct">The answer is correct!</string>
     <string name="answer_incorrect">The answer is incorrect!</string>
+    <string name="warning_text">Are you sure you want to do this?</string>
+    <string name="show_answer_button">Show Answer</string>
     <string name="cheat_button">Cheat!</string>
 </resources>

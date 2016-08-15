@@ -1,5 +1,6 @@
 package com.mysticwind.android.bignerdranch.training.mygeoquiz.activity;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +26,7 @@ public class MyGeoquizActivity extends AppCompatActivity {
     private Button noButton;
     private ImageButton previousButton;
     private ImageButton nextButton;
+    private Button cheatButton;
 
     // DI to handle questions and QuizManager
     private Question[] questions = new Question[] {
@@ -89,6 +91,15 @@ public class MyGeoquizActivity extends AppCompatActivity {
             public void onClick(View v) {
                 quizTextView.setText(quizManager.nextQuiz());
                 enablePreviousAndNextButtonAndDisableAnswerButtons(false);
+            }
+        });
+
+        cheatButton = (Button) findViewById(R.id.cheatButton);
+        cheatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MyGeoquizActivity.this, MyCheatActivity.class);
+                startActivity(intent);
             }
         });
     }
