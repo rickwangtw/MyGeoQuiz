@@ -17,4 +17,8 @@ public class Question {
     public boolean validateAnswer(boolean answer) {
         return answer == isAnswerTrue;
     }
+
+    public boolean isAnswerTrue() {
+        return isAnswerTrue;
+    }
 }

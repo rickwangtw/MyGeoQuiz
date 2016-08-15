@@ -7,8 +7,10 @@ public interface QuizManager {
     int previousQuiz();
     int nextQuiz();
     boolean answer(boolean enteredAnswer);
+    boolean peekAnswer();
 
     // TODO not exposing these APIs for persisting states
     QuizState getQuizState();
     int continueQuiz(QuizState quizState);
+
 }

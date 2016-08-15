@@ -98,7 +98,8 @@ public class MyGeoquizActivity extends AppCompatActivity {
         cheatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MyGeoquizActivity.this, MyCheatActivity.class);
+                // TODO we are leaking the answer even if the user did not choose the see the answer
+                Intent intent = MyCheatActivity.newLaunchCheatActivityIntent(MyGeoquizActivity.this, quizManager.peekAnswer());
                 startActivity(intent);
             }
         });

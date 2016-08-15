@@ -47,6 +47,11 @@ public class QuizManagerImpl implements QuizManager {
     }
 
     @Override
+    public boolean peekAnswer() {
+        return questions[currentIndex].isAnswerTrue();
+    }
+
+    @Override
     public QuizState getQuizState() {
         return new QuizState(currentIndex, answeredIndex);
     }
