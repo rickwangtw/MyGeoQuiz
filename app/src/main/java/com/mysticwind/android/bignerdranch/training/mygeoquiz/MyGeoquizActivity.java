@@ -18,7 +18,6 @@ public class MyGeoquizActivity extends AppCompatActivity {
     private Button noButton;
     private Button previousButton;
     private Button nextButton;
-    private int currentIndex = 0;
 
     // DI to handle questions and QuizManager
     private Question[] questions = new Question[] {
