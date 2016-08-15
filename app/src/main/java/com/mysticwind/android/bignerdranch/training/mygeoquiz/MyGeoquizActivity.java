@@ -16,6 +16,7 @@ public class MyGeoquizActivity extends AppCompatActivity {
     private TextView quizTextView;
     private Button yesButton;
     private Button noButton;
+    private Button previousButton;
     private Button nextButton;
     private int currentIndex = 0;
 
@@ -54,13 +55,23 @@ public class MyGeoquizActivity extends AppCompatActivity {
             }
         });
 
+        previousButton = (Button) findViewById(R.id.previous_button_view);
+        previousButton.setEnabled(false);
+        previousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                quizTextView.setText(quizManager.previousQuiz());
+                enablePreviousAndNextButtonAndDisableAnswerButtons(false);
+            }
+        });
+
         nextButton = (Button) findViewById(R.id.next_button_view);
         nextButton.setEnabled(false);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 quizTextView.setText(quizManager.nextQuiz());
-                enableNextButtonAndDisableAnswerButtons(false);
+                enablePreviousAndNextButtonAndDisableAnswerButtons(false);
             }
         });
     }
@@ -69,12 +80,13 @@ public class MyGeoquizActivity extends AppCompatActivity {
         boolean isAnswerCorrect = quizManager.answer(enteredAnswer);
         int stringResourceId = isAnswerCorrect ? R.string.answer_correct : R.string.answer_incorrect;
         Toast.makeText(MyGeoquizActivity.this, stringResourceId, Toast.LENGTH_SHORT).show();
-        enableNextButtonAndDisableAnswerButtons(true);
+        enablePreviousAndNextButtonAndDisableAnswerButtons(true);
     }
 
-    private void enableNextButtonAndDisableAnswerButtons(boolean enableNextButton) {
-        nextButton.setEnabled(enableNextButton);
-        yesButton.setEnabled(!enableNextButton);
-        noButton.setEnabled(!enableNextButton);
+    private void enablePreviousAndNextButtonAndDisableAnswerButtons(boolean enablePreviousAndNextButton) {
+        previousButton.setEnabled(enablePreviousAndNextButton);
+        nextButton.setEnabled(enablePreviousAndNextButton);
+        yesButton.setEnabled(!enablePreviousAndNextButton);
+        noButton.setEnabled(!enablePreviousAndNextButton);
     }
 }

@@ -18,6 +18,12 @@ public class QuizManagerImpl implements QuizManager {
     }
 
     @Override
+    public int previousQuiz() {
+        currentIndex = (currentIndex + questions.length - 1) % questions.length;
+        return getTextResourceId();
+    }
+
+    @Override
     public int nextQuiz() {
         currentIndex = (currentIndex + 1) % questions.length;
         return getTextResourceId();

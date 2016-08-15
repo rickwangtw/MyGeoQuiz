@@ -3,6 +3,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="next">Next</string>
+    <string name="previous">Previous</string>
     <string name="answer_correct">The answer is correct!</string>
     <string name="answer_incorrect">The answer is incorrect!</string>
 </resources>
