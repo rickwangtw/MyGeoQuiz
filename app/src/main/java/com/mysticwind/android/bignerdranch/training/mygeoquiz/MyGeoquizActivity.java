@@ -55,10 +55,12 @@ public class MyGeoquizActivity extends AppCompatActivity {
         });
 
         nextButton = (Button) findViewById(R.id.next_button_view);
+        nextButton.setEnabled(false);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 quizTextView.setText(quizManager.nextQuiz());
+                enableNextButtonAndDisableAnswerButtons(false);
             }
         });
     }
@@ -67,5 +69,12 @@ public class MyGeoquizActivity extends AppCompatActivity {
         boolean isAnswerCorrect = quizManager.answer(enteredAnswer);
         int stringResourceId = isAnswerCorrect ? R.string.answer_correct : R.string.answer_incorrect;
         Toast.makeText(MyGeoquizActivity.this, stringResourceId, Toast.LENGTH_SHORT).show();
+        enableNextButtonAndDisableAnswerButtons(true);
+    }
+
+    private void enableNextButtonAndDisableAnswerButtons(boolean enableNextButton) {
+        nextButton.setEnabled(enableNextButton);
+        yesButton.setEnabled(!enableNextButton);
+        noButton.setEnabled(!enableNextButton);
     }
 }
