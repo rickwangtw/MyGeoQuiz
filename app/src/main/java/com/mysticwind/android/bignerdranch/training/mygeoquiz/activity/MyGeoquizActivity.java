@@ -1,4 +1,4 @@
-package com.mysticwind.android.bignerdranch.training.mygeoquiz;
+package com.mysticwind.android.bignerdranch.training.mygeoquiz.activity;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mysticwind.android.bignerdranch.training.mygeoquiz.R;
 import com.mysticwind.android.bignerdranch.training.mygeoquiz.manager.QuizManager;
 import com.mysticwind.android.bignerdranch.training.mygeoquiz.manager.QuizManagerImpl;
 import com.mysticwind.android.bignerdranch.training.mygeoquiz.model.Question;
