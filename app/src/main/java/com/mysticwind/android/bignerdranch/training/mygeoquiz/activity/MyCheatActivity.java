@@ -13,6 +13,7 @@ import com.mysticwind.android.bignerdranch.training.mygeoquiz.R;
 public class MyCheatActivity extends AppCompatActivity {
 
     private static final String IS_ANSWER_TRUE_EXTRA_KEY = "isAnswerTrue";
+    private static final String IS_ANSWER_SHOWN_EXTRA_KEY = "isAnswerShown";
 
     private boolean isAnswerTrue;
     private TextView answerTextView;
@@ -33,13 +34,24 @@ public class MyCheatActivity extends AppCompatActivity {
             public void onClick(View v) {
                 int answerResourceId = isAnswerTrue ? R.string.yes : R.string.no;
                 answerTextView.setText(answerResourceId);
+                setAnswerShown();
             }
         });
+    }
+
+    private void setAnswerShown() {
+        Intent data = new Intent();
+        data.putExtra(IS_ANSWER_SHOWN_EXTRA_KEY, true);
+        setResult(RESULT_OK, data);
     }
 
     public static Intent newLaunchCheatActivityIntent(Context context, boolean answerOfQuiz) {
         Intent intent = new Intent(context, MyCheatActivity.class);
         intent.putExtra(MyCheatActivity.IS_ANSWER_TRUE_EXTRA_KEY, answerOfQuiz);
         return intent;
+    }
+
+    public static boolean wasAnswerShown(Intent data) {
+        return data.getBooleanExtra(IS_ANSWER_SHOWN_EXTRA_KEY, false);
     }
 }

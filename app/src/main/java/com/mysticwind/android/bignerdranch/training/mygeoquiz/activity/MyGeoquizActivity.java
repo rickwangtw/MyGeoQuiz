@@ -1,5 +1,6 @@
 package com.mysticwind.android.bignerdranch.training.mygeoquiz.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ public class MyGeoquizActivity extends AppCompatActivity {
 
     private static final String TAG = MyGeoquizActivity.class.getSimpleName();
     private static final String PERSISTED_QUIZ_STATE_KEY = "quizState";
+    private static final int REQUEST_CODE_CHEAT = 0xDEAD;
 
     private TextView quizTextView;
     private Button yesButton;
@@ -27,6 +29,7 @@ public class MyGeoquizActivity extends AppCompatActivity {
     private ImageButton previousButton;
     private ImageButton nextButton;
     private Button cheatButton;
+    private boolean isCheater;
 
     // DI to handle questions and QuizManager
     private Question[] questions = new Question[] {
@@ -38,6 +41,21 @@ public class MyGeoquizActivity extends AppCompatActivity {
     };
 
     private final QuizManager quizManager = new QuizManagerImpl(questions);
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            if (data == null) {
+                return;
+            }
+            isCheater = MyCheatActivity.wasAnswerShown(data);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +97,7 @@ public class MyGeoquizActivity extends AppCompatActivity {
         previousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                resetCheatStatus();
                 quizTextView.setText(quizManager.previousQuiz());
                 enablePreviousAndNextButtonAndDisableAnswerButtons(false);
             }
@@ -89,6 +108,7 @@ public class MyGeoquizActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                resetCheatStatus();
                 quizTextView.setText(quizManager.nextQuiz());
                 enablePreviousAndNextButtonAndDisableAnswerButtons(false);
             }
@@ -100,9 +120,13 @@ public class MyGeoquizActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // TODO we are leaking the answer even if the user did not choose the see the answer
                 Intent intent = MyCheatActivity.newLaunchCheatActivityIntent(MyGeoquizActivity.this, quizManager.peekAnswer());
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_CODE_CHEAT);
             }
         });
+    }
+
+    private void resetCheatStatus() {
+        isCheater = false;
     }
 
     @Override
@@ -144,8 +168,13 @@ public class MyGeoquizActivity extends AppCompatActivity {
     }
 
     private void checkAnswerAndShowToast(boolean enteredAnswer) {
-        boolean isAnswerCorrect = quizManager.answer(enteredAnswer);
-        int stringResourceId = isAnswerCorrect ? R.string.answer_correct : R.string.answer_incorrect;
+        int stringResourceId;
+        if (isCheater) {
+            stringResourceId = R.string.cheater;
+        } else {
+            boolean isAnswerCorrect = quizManager.answer(enteredAnswer);
+            stringResourceId = isAnswerCorrect ? R.string.answer_correct : R.string.answer_incorrect;
+        }
         Toast.makeText(MyGeoquizActivity.this, stringResourceId, Toast.LENGTH_SHORT).show();
         enablePreviousAndNextButtonAndDisableAnswerButtons(true);
     }
