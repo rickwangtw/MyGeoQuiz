@@ -61,6 +61,8 @@
         android:layout_height="wrap_content"
         android:text="@string/next"
         android:layout_gravity="center_horizontal"
+        android:drawableRight="@drawable/arrow_right"
+        android:drawablePadding="4dp"
         />
 
 </LinearLayout>
