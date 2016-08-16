@@ -17,10 +17,14 @@ import com.mysticwind.android.bignerdranch.training.mygeoquiz.manager.QuizManage
 import com.mysticwind.android.bignerdranch.training.mygeoquiz.model.Question;
 import com.mysticwind.android.bignerdranch.training.mygeoquiz.model.QuizState;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class MyGeoquizActivity extends AppCompatActivity {
 
     private static final String TAG = MyGeoquizActivity.class.getSimpleName();
     private static final String PERSISTED_QUIZ_STATE_KEY = "quizState";
+    private static final String PERSISTED_CHEATED_QUIZ_IDS_KEY = "cheatedQuiz";
     private static final int REQUEST_CODE_CHEAT = 0xDEAD;
 
     private TextView quizTextView;
@@ -29,7 +33,8 @@ public class MyGeoquizActivity extends AppCompatActivity {
     private ImageButton previousButton;
     private ImageButton nextButton;
     private Button cheatButton;
-    private boolean isCheater;
+    private int quizTextResourceId;
+    private Set<Integer> cheatedQuizResourceIds = new HashSet<>();
 
     // DI to handle questions and QuizManager
     private Question[] questions = new Question[] {
@@ -53,7 +58,11 @@ public class MyGeoquizActivity extends AppCompatActivity {
             if (data == null) {
                 return;
             }
-            isCheater = MyCheatActivity.wasAnswerShown(data);
+            boolean isCheater = MyCheatActivity.wasAnswerShown(data);
+            if (isCheater) {
+                Integer cheatedQuizId = MyCheatActivity.extractCheatedQuizId(data);
+                cheatedQuizResourceIds.add(cheatedQuizId);
+            }
         }
     }
 
@@ -67,10 +76,13 @@ public class MyGeoquizActivity extends AppCompatActivity {
 
         quizTextView = (TextView) findViewById(R.id.quiz_text_view);
 
-        int quizTextResourceId;
         if (savedInstanceState == null) {
             quizTextResourceId = quizManager.startQuiz();
         } else {
+            Integer[] cheatedQuizIdsIntegerArray = (Integer[]) savedInstanceState.getSerializable(PERSISTED_CHEATED_QUIZ_IDS_KEY);
+            for (Integer cheatedQuizId : cheatedQuizIdsIntegerArray) {
+                cheatedQuizResourceIds.add(cheatedQuizId);
+            }
             QuizState quizState = (QuizState) savedInstanceState.getSerializable(PERSISTED_QUIZ_STATE_KEY);
             quizTextResourceId = quizManager.continueQuiz(quizState);
         }
@@ -97,8 +109,8 @@ public class MyGeoquizActivity extends AppCompatActivity {
         previousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                resetCheatStatus();
-                quizTextView.setText(quizManager.previousQuiz());
+                quizTextResourceId = quizManager.previousQuiz();
+                quizTextView.setText(quizTextResourceId);
                 enablePreviousAndNextButtonAndDisableAnswerButtons(false);
             }
         });
@@ -108,8 +120,8 @@ public class MyGeoquizActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                resetCheatStatus();
-                quizTextView.setText(quizManager.nextQuiz());
+                quizTextResourceId = quizManager.nextQuiz();
+                quizTextView.setText(quizTextResourceId);
                 enablePreviousAndNextButtonAndDisableAnswerButtons(false);
             }
         });
@@ -119,14 +131,11 @@ public class MyGeoquizActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO we are leaking the answer even if the user did not choose the see the answer
-                Intent intent = MyCheatActivity.newLaunchCheatActivityIntent(MyGeoquizActivity.this, quizManager.peekAnswer());
+                Intent intent = MyCheatActivity.newLaunchCheatActivityIntent(
+                        MyGeoquizActivity.this, quizTextResourceId, quizManager.peekAnswer());
                 startActivityForResult(intent, REQUEST_CODE_CHEAT);
             }
         });
-    }
-
-    private void resetCheatStatus() {
-        isCheater = false;
     }
 
     @Override
@@ -147,6 +156,8 @@ public class MyGeoquizActivity extends AppCompatActivity {
 
         QuizState quizState = quizManager.getQuizState();
         outState.putSerializable(PERSISTED_QUIZ_STATE_KEY, quizState);
+        outState.putSerializable(PERSISTED_CHEATED_QUIZ_IDS_KEY,
+                cheatedQuizResourceIds.toArray(new Integer[cheatedQuizResourceIds.size()]));
     }
 
     @Override
@@ -171,7 +182,7 @@ public class MyGeoquizActivity extends AppCompatActivity {
         boolean isAnswerCorrect = quizManager.answer(enteredAnswer);
 
         int stringResourceId;
-        if (isCheater) {
+        if (isCheater()) {
             stringResourceId = R.string.cheater;
         } else {
             stringResourceId = isAnswerCorrect ? R.string.answer_correct : R.string.answer_incorrect;
@@ -185,6 +196,10 @@ public class MyGeoquizActivity extends AppCompatActivity {
         nextButton.setEnabled(enablePreviousAndNextButton);
         yesButton.setEnabled(!enablePreviousAndNextButton);
         noButton.setEnabled(!enablePreviousAndNextButton);
+    }
+
+    public boolean isCheater() {
+        return cheatedQuizResourceIds.contains(quizTextResourceId);
     }
 
     private void debug(String message) {

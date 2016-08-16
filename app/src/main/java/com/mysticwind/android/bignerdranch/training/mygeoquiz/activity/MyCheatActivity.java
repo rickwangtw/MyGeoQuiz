@@ -16,10 +16,12 @@ public class MyCheatActivity extends AppCompatActivity {
 
     private static final String IS_ANSWER_TRUE_EXTRA_KEY = "isAnswerTrue";
     private static final String IS_ANSWER_SHOWN_EXTRA_KEY = "isAnswerShown";
+    private static final String QUIZ_UNIQUE_ID_EXTRA_KEY = "quizUniqueId";
     private static final String CHEAT_STATE_KEY = "cheatState";
 
     private boolean isAnswerTrue;
     private boolean isAnswerShown;
+    private int quizUniqueId;
     private TextView answerTextView;
     private Button showAnswerButton;
     private TextView apiLevelTextView;
@@ -32,12 +34,14 @@ public class MyCheatActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             CheatState cheatState = (CheatState) savedInstanceState.getSerializable(CHEAT_STATE_KEY);
             if (cheatState != null) {
+                quizUniqueId = cheatState.getQuizUniqueId();
                 isAnswerTrue = cheatState.isAnswerTrue();
                 isAnswerShown = cheatState.isAnswerShown();
             }
         } else {
             isAnswerTrue = getIntent().getBooleanExtra(IS_ANSWER_TRUE_EXTRA_KEY, false);
             isAnswerShown = false;
+            quizUniqueId = getIntent().getIntExtra(QUIZ_UNIQUE_ID_EXTRA_KEY, 0);
         }
 
         answerTextView = (TextView) findViewById(R.id.answer_text_view);
@@ -70,22 +74,31 @@ public class MyCheatActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putSerializable(CHEAT_STATE_KEY, new CheatState(isAnswerTrue, isAnswerShown));
+        outState.putSerializable(CHEAT_STATE_KEY,
+                new CheatState(quizUniqueId, isAnswerTrue, isAnswerShown));
     }
 
     private void updateResult() {
         Intent data = new Intent();
+        data.putExtra(QUIZ_UNIQUE_ID_EXTRA_KEY, quizUniqueId);
         data.putExtra(IS_ANSWER_SHOWN_EXTRA_KEY, true);
         setResult(RESULT_OK, data);
     }
 
-    public static Intent newLaunchCheatActivityIntent(Context context, boolean answerOfQuiz) {
+    public static Intent newLaunchCheatActivityIntent(Context context,
+                                                      int quizUniqueId,
+                                                      boolean answerOfQuiz) {
         Intent intent = new Intent(context, MyCheatActivity.class);
+        intent.putExtra(MyCheatActivity.QUIZ_UNIQUE_ID_EXTRA_KEY, quizUniqueId);
         intent.putExtra(MyCheatActivity.IS_ANSWER_TRUE_EXTRA_KEY, answerOfQuiz);
         return intent;
     }
 
     public static boolean wasAnswerShown(Intent data) {
         return data.getBooleanExtra(IS_ANSWER_SHOWN_EXTRA_KEY, false);
+    }
+
+    public static int extractCheatedQuizId(Intent data) {
+        return data.getIntExtra(QUIZ_UNIQUE_ID_EXTRA_KEY, 0);
     }
 }
