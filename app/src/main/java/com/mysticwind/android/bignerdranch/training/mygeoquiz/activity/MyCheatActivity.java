@@ -10,13 +10,16 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.mysticwind.android.bignerdranch.training.mygeoquiz.R;
+import com.mysticwind.android.bignerdranch.training.mygeoquiz.model.CheatState;
 
 public class MyCheatActivity extends AppCompatActivity {
 
     private static final String IS_ANSWER_TRUE_EXTRA_KEY = "isAnswerTrue";
     private static final String IS_ANSWER_SHOWN_EXTRA_KEY = "isAnswerShown";
+    private static final String CHEAT_STATE_KEY = "cheatState";
 
     private boolean isAnswerTrue;
+    private boolean isAnswerShown;
     private TextView answerTextView;
     private Button showAnswerButton;
     private TextView apiLevelTextView;
@@ -26,7 +29,16 @@ public class MyCheatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_cheat);
 
-        isAnswerTrue = getIntent().getBooleanExtra(IS_ANSWER_TRUE_EXTRA_KEY, false);
+        if (savedInstanceState != null) {
+            CheatState cheatState = (CheatState) savedInstanceState.getSerializable(CHEAT_STATE_KEY);
+            if (cheatState != null) {
+                isAnswerTrue = cheatState.isAnswerTrue();
+                isAnswerShown = cheatState.isAnswerShown();
+            }
+        } else {
+            isAnswerTrue = getIntent().getBooleanExtra(IS_ANSWER_TRUE_EXTRA_KEY, false);
+            isAnswerShown = false;
+        }
 
         answerTextView = (TextView) findViewById(R.id.answer_text_view);
 
@@ -34,17 +46,34 @@ public class MyCheatActivity extends AppCompatActivity {
         showAnswerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int answerResourceId = isAnswerTrue ? R.string.yes : R.string.no;
-                answerTextView.setText(answerResourceId);
-                setAnswerShown();
+                isAnswerShown = true;
+                showResult();
+                updateResult();
             }
         });
 
         apiLevelTextView = (TextView) findViewById(R.id.api_level_text_view);
         apiLevelTextView.setText(String.format(getString(R.string.api_level), Build.VERSION.SDK_INT));
+
+        if (isAnswerShown) {
+            showResult();
+            updateResult();
+        }
     }
 
-    private void setAnswerShown() {
+    private void showResult() {
+        int answerResourceId = isAnswerTrue ? R.string.yes : R.string.no;
+        answerTextView.setText(answerResourceId);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putSerializable(CHEAT_STATE_KEY, new CheatState(isAnswerTrue, isAnswerShown));
+    }
+
+    private void updateResult() {
         Intent data = new Intent();
         data.putExtra(IS_ANSWER_SHOWN_EXTRA_KEY, true);
         setResult(RESULT_OK, data);
