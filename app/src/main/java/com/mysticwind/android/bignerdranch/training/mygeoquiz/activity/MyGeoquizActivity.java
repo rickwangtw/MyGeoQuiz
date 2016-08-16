@@ -168,11 +168,12 @@ public class MyGeoquizActivity extends AppCompatActivity {
     }
 
     private void checkAnswerAndShowToast(boolean enteredAnswer) {
+        boolean isAnswerCorrect = quizManager.answer(enteredAnswer);
+
         int stringResourceId;
         if (isCheater) {
             stringResourceId = R.string.cheater;
         } else {
-            boolean isAnswerCorrect = quizManager.answer(enteredAnswer);
             stringResourceId = isAnswerCorrect ? R.string.answer_correct : R.string.answer_incorrect;
         }
         Toast.makeText(MyGeoquizActivity.this, stringResourceId, Toast.LENGTH_SHORT).show();
